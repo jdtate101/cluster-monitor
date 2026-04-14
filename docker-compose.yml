@@ -1,0 +1,61 @@
+services:
+  pod-monitor:
+    build: .
+    image: pod-monitor:latest
+    container_name: k8s-pod-monitor
+    restart: always
+
+    environment:
+      # ----------------------------------------------------------------
+      # Gmail
+      # ----------------------------------------------------------------
+      GMAIL_USER: "jdtate101@gmail.com"
+      GMAIL_APP_PASS: "ibfs dhlb lvhq bvlg"   # 16-char App Password
+      ALERT_TO: "jdtate101gmail.com"               # comma-separate for multiple
+
+      # ----------------------------------------------------------------
+      # Monitor behaviour
+      # ----------------------------------------------------------------
+      POLL_INTERVAL_SECONDS: "60"             # how often to poll (default 60)
+      ALERT_THRESHOLD_MINUTES: "10"           # alert after N min of failure
+      LOG_LEVEL: "INFO"                       # DEBUG for verbose output
+
+      # Namespaces to skip on top of defaults (kube-system, kube-public, kube-node-lease)
+      # SKIP_NAMESPACES: "monitoring,logging"
+
+      # ----------------------------------------------------------------
+      # Cluster 1 — OpenShift
+      # ----------------------------------------------------------------
+      CLUSTER_1_NAME: "openshift"
+      CLUSTER_1_URL: "https://api.openshift2.lab.home:6443"
+      CLUSTER_1_TOKEN: "cluster_token"
+      #CLUSTER_1_CA_CERT: "/certs/openshift-ca.crt"   # mounted below
+      CLUSTER_1_INSECURE: "true"
+
+      # ----------------------------------------------------------------
+      # Cluster 2 — RKE2
+      # ----------------------------------------------------------------
+      CLUSTER_2_NAME: "rke2"
+      CLUSTER_2_URL: "https://192.168.1.99:6443"
+      CLUSTER_2_TOKEN: "cluster_token"
+      CLUSTER_2_INSECURE: "true"              # or set CA_CERT path
+
+      # ----------------------------------------------------------------
+      # Cluster 3 — k3s
+      # ----------------------------------------------------------------
+      CLUSTER_3_NAME: "k3s"
+      CLUSTER_3_URL: "https://192.168.1.105:6443"
+      CLUSTER_3_TOKEN: "cluster_token"
+      CLUSTER_3_INSECURE: "true"              # or set CA_CERT path
+
+    volumes:
+      # Mount your OpenShift self-signed CA so TLS verification works
+      # - ~/certs/openshift/selfsignCA.crt:/certs/openshift-ca.crt:ro
+
+      # If you use .env-style secrets file instead of inline env vars,
+      # comment out the environment block above and use:
+      # env_file: .env
+
+    # The monitor makes direct HTTPS calls to the k8s APIs — no ports needed.
+    # Ensure your Docker network can reach 192.168.1.x and api.openshift2.lab.home
+    network_mode: host   # simplest for homelab LAN access; or use a bridge with host routes
