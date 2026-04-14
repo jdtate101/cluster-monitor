@@ -2,6 +2,10 @@
 
 Lightweight Docker daemon that polls multiple Kubernetes clusters every 60 seconds and sends a Gmail alert when any pod has been in a failing state for more than 10 minutes. Sends a recovery email when the pod comes good again.
 
+![Email On Failure](failure.png)
+
+![Email On Restore](restore.png)
+
 ---
 
 ## How it works
